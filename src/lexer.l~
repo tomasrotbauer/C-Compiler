@@ -1,0 +1,226 @@
+%{
+
+// this will be added to the top of your lexer.c file
+
+#include "bridge.hpp"
+
+#define GET_COLUMN() yyget_extra(yyscanner)
+#define SET_COLUMN(x) yyset_extra((x), yyscanner)
+#define INC_COLUMN(x) yyset_extra(GET_COLUMN() + (x), yyscanner)
+
+#define LOC(x) (yy::parser::location_type { nullptr, yylineno, (x) })
+
+#define TOK(t, x, ...) \
+	make_symbol(yylval, yy::parser::make_ ##t (__VA_ARGS__ __VA_OPT__(,) LOC(x)))
+
+#define yyterminate() return TOK(YYEOF, GET_COLUMN())
+
+static int make_symbol(YYSTYPE*, YYSTYPE);
+
+%}
+
+/* see https://westes.github.io/flex/manual/Scanner-Options.html */
+
+%option header-file="lexer.h"
+
+%option yylineno
+%option noyywrap
+
+%option bison-bridge
+%option bison-locations
+%option reentrant
+%option nounput
+%option extra-type="int"
+
+%option debug
+%option nodefault
+%option verbose
+%option warn
+
+WS [ \r\n\t]+
+DIGIT [0-9]
+ID [_a-zA-Z][_a-zA-Z0-9]*
+FL1 [0-9]+[eE][+-]?[0-9]+[fFlL]?
+FL2 [0-9]+"."([eE][+-]?[0-9]+)?[fFlL]?
+FL3 [0-9]*"."[0-9]+([eE][+-]?[0-9]+)?[fFlL]?
+BOOL true|false
+TYPE int|float|bool|void
+PAREN [()]
+BRACE [{}]
+RELATIONAL ==|!=|<|>|<=|>=
+OPERATORS [\+\-\*\/]
+AUGOPS +=|-=|*=|/=
+LOGOP (&&)|(\|\|)
+KWRDS if|while|for|break|continue|return
+PUNCTUATION [\,\;\:\?\=]
+%%
+
+{WS} { 
+    for(int i = 0; i < yyleng; ++i)
+        if(yytext[i] == '\r' || yytext[i] == '\n')
+            SET_COLUMN(1);
+        else INC_COLUMN(1);               
+}
+
+{BOOL} {
+    int col = GET_COLUMN();
+    INC_COLUMN(yyleng);
+
+    if (std::string(yytext) == "false")
+        return TOK(TOK_FALSE, col, false);
+    else
+        return TOK(TOK_TRUE, col, true);
+}
+
+{KWRDS} {
+    int col = GET_COLUMN();
+    INC_COLUMN(yyleng);
+    
+    if(std::string(yytext) == "if")
+       return TOK(TOK_IF, col, yytext);
+    else if(std::string(yytext) == "while")
+       return TOK(TOK_WHILE, col, yytext);  
+    else if(std::string(yytext) == "for")
+       return TOK(TOK_FOR, col, yytext); 
+    else if(std::string(yytext) == "break")
+       return TOK(TOK_BREAK, col, yytext); 
+    else if(std::string(yytext) == "continue")
+       return TOK(TOK_CONTINUE, col, yytext); 
+    else
+        return TOK(TOK_RETURN, col, yytext);    
+}
+
+{TYPE} {
+    int col = GET_COLUMN();
+    INC_COLUMN(yyleng);
+
+    return TOK(TOK_TYPE, col, yytext);  
+}
+
+{ID} {
+    int col = GET_COLUMN();
+    INC_COLUMN(yyleng);
+    return TOK(TOK_IDENTIFIER, col, yytext);
+}
+
+{DIGIT}+ {
+    int col = GET_COLUMN();
+    INC_COLUMN(yyleng);
+    return TOK(TOK_INTEGER, col, std::stoi(yytext));
+}
+
+{FL1}|{FL2}|{FL3} {
+    int col = GET_COLUMN();
+    INC_COLUMN(yyleng);
+    return TOK(TOK_FLOAT, col, std::stof(yytext));
+}
+
+{PAREN} {
+    int col = GET_COLUMN();
+    INC_COLUMN(1);
+    char paren = (char)yytext[0];
+    
+    if (paren == '(')
+        return TOK(TOK_LPAREN, col, paren);
+    else
+        return TOK(TOK_RPAREN, col, paren);
+}
+
+{BRACE} {
+    int col = GET_COLUMN();
+    INC_COLUMN(1);
+    char brace = (char)yytext[0];
+    
+    if (brace == '{')
+        return TOK(TOK_LBRACE, col, brace);
+    else
+        return TOK(TOK_RBRACE, col, brace);
+}
+
+{RELATIONAL} {
+    int col = GET_COLUMN();
+    INC_COLUMN(yyleng);
+    
+    if(std::string(yytext) == "==")
+       return TOK(TOK_EQ, col, yytext);
+    else if(std::string(yytext) == "!=")
+       return TOK(TOK_NE, col, yytext);  
+    else if(std::string(yytext) == "<")
+       return TOK(TOK_LT, col, yytext[0]); 
+    else if(std::string(yytext) == ">")
+       return TOK(TOK_GT, col, yytext[0]); 
+    else if(std::string(yytext) == "<=")
+       return TOK(TOK_LE, col, yytext); 
+    else
+        return TOK(TOK_GE, col, yytext);
+}
+
+{AUGOPS} {
+    int col = GET_COLUMN();
+    INC_COLUMN(yyleng);
+    
+    if(std::string(yytext) == "+=")
+       return TOK(TOK_PLUS_ASSIGN, col, yytext);
+    else if(std::string(yytext) == "-=")
+       return TOK(TOK_MINUS_ASSIGN, col, yytext);  
+    else if(std::string(yytext) == "*=")
+       return TOK(TOK_STAR_ASSIGN, col, yytext); 
+    else
+        return TOK(TOK_SLASH_ASSIGN, col, yytext);
+}
+
+{OPERATORS} {
+    int col = GET_COLUMN();
+    INC_COLUMN(1);
+    char op = yytext[0];
+    
+    if (op == '+')
+        return TOK(TOK_PLUS, col, op);
+    else if (op == '-')
+        return TOK(TOK_MINUS, col, op);
+    else if (op == '*')
+        return TOK(TOK_STAR, col, op);
+    else
+        return TOK(TOK_SLASH, col, op);
+}
+
+{LOGOP} {
+    int col = GET_COLUMN();
+    INC_COLUMN(2);
+    
+    if(std::string(yytext) == "&&")
+       return TOK(TOK_LOG_AND, col, yytext);
+    else
+        return TOK(TOK_LOG_OR, col, yytext);
+}
+
+{PUNCTUATION} {
+    int col = GET_COLUMN();
+    INC_COLUMN(1);
+    char symbol = yytext[0];
+    
+    if (symbol == ',')
+        return TOK(TOK_COMMA, col, symbol);
+    else if (symbol == ';')
+        return TOK(TOK_SEMICOLON, col, symbol);
+    else if (symbol == ':')
+        return TOK(TOK_COLON, col, symbol);
+    else if (symbol == '?')
+        return TOK(TOK_QUESTION_MARK, col, symbol);
+    else
+        return TOK(TOK_ASSIGN, col, symbol);
+}
+
+. { 
+    printf("[error] invalid token.\n"); 
+	int col = GET_COLUMN();
+    INC_COLUMN(1);
+    return TOK(YYUNDEF, col); 
+}
+
+%%
+
+int make_symbol(YYSTYPE* val, YYSTYPE sym) {
+	val->move(sym);
+	return 1;
+}

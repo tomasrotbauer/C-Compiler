@@ -1,0 +1,19 @@
+Name: Tomas Rotbauer
+Student Number: 1003963124
+
+I completed the lab on my own. Everything is implemented and all provided test cases pass. 
+Here are a few notable design/implementation decisions:
+
+1.  The implementation uses a visitor pattern for traversing the AST and producing the IR.
+    The pattern visits all functions, and for every function the block is handled followed by
+    all the statements and expressions.
+
+2.  All functions were declared inside the CompilerUnit class for easy access to all the 
+    llvm variables.
+
+3.  All function declarations are handled before function definitions because it is more logical
+    to do it that way.
+
+4.  Each compound statement has its own codegen function whereas the single statements
+    are all decomposed into the respective expressions and handled universally with the 
+    expression codegen function. The respective 

@@ -1,0 +1,1815 @@
+Grammar
+
+    0 $accept: root $end
+
+    1 root: function_list
+
+    2 function_list: function function_list
+    3              | function
+
+    4 function: function_decl TOK_SEMICOLON
+    5         | function_defn
+
+    6 function_decl: type name TOK_LPAREN parameter_list TOK_RPAREN
+    7              | type name TOK_LPAREN TOK_RPAREN
+
+    8 function_defn: function_decl block
+
+    9 type: TOK_TYPE
+
+   10 name: TOK_IDENTIFIER
+
+   11 parameter_list: declaration
+   12               | declaration TOK_COMMA parameter_list
+
+   13 block: TOK_LBRACE suite TOK_RBRACE
+   14      | TOK_LBRACE TOK_RBRACE
+
+   15 suite: statement
+   16      | statement suite
+
+   17 declaration: type name
+
+   18 statement: single_statement TOK_SEMICOLON
+   19          | compound_statement
+
+   20 single_statement: declaration TOK_ASSIGN expression
+   21                 | name TOK_ASSIGN expression
+   22                 | name augmented_assign expression
+   23                 | TOK_BREAK
+   24                 | TOK_CONTINUE
+   25                 | TOK_RETURN
+   26                 | TOK_RETURN expression
+   27                 | expression
+
+   28 augmented_assign: TOK_PLUS_ASSIGN
+   29                 | TOK_MINUS_ASSIGN
+   30                 | TOK_STAR_ASSIGN
+   31                 | TOK_SLASH_ASSIGN
+
+   32 expression: ternary_expression
+
+   33 ternary_expression: logical_expression
+   34                   | logical_expression TOK_QUESTION_MARK logical_expression TOK_COLON ternary_expression
+
+   35 logical_expression: equality
+   36                   | equality TOK_LOG_AND logical_expression
+   37                   | equality TOK_LOG_OR logical_expression
+
+   38 equality: comparison
+   39         | comparison TOK_EQ equality
+   40         | comparison TOK_NE equality
+
+   41 comparison: term
+   42           | term TOK_LT comparison
+   43           | term TOK_LE comparison
+   44           | term TOK_GT comparison
+   45           | term TOK_GE comparison
+
+   46 term: factor
+   47     | factor TOK_PLUS term
+   48     | factor TOK_MINUS term
+
+   49 factor: unary_expression
+   50       | unary_expression TOK_STAR factor
+   51       | unary_expression TOK_SLASH factor
+
+   52 unary_expression: primary
+   53                 | TOK_MINUS primary
+   54                 | TOK_LPAREN type TOK_RPAREN primary
+
+   55 primary: TOK_TRUE
+   56        | TOK_FALSE
+   57        | TOK_INTEGER
+   58        | TOK_FLOAT
+   59        | TOK_LPAREN expression TOK_RPAREN
+   60        | name
+   61        | function_call
+
+   62 compound_statement: TOK_IF TOK_LPAREN expression TOK_RPAREN block
+   63                   | TOK_FOR for_init for_cond for_act block
+   64                   | TOK_WHILE TOK_LPAREN expression TOK_RPAREN block
+
+   65 for_init: TOK_LPAREN single_statement TOK_SEMICOLON
+   66         | TOK_LPAREN TOK_SEMICOLON
+
+   67 for_cond: expression TOK_SEMICOLON
+   68         | TOK_SEMICOLON
+
+   69 for_act: single_statement TOK_RPAREN
+   70        | TOK_RPAREN
+
+   71 function_call: name TOK_LPAREN function_args TOK_RPAREN
+   72              | name TOK_LPAREN TOK_RPAREN
+
+   73 function_args: expression
+   74              | expression TOK_COMMA function_args
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    error (256)
+    TOK_IDENTIFIER <std::string> (258) 10
+    TOK_TYPE <std::string> (259) 9
+    TOK_INTEGER <int> (260) 57
+    TOK_FLOAT <float> (261) 58
+    TOK_TRUE <bool> (262) 55
+    TOK_FALSE <bool> (263) 56
+    TOK_LPAREN <char> (264) 6 7 54 59 62 64 65 66 71 72
+    TOK_RPAREN <char> (265) 6 7 54 59 62 64 69 70 71 72
+    TOK_LBRACE <char> (266) 13 14
+    TOK_RBRACE <char> (267) 13 14
+    TOK_EQ <std::string> (268) 39
+    TOK_NE <std::string> (269) 40
+    TOK_LT <char> (270) 42
+    TOK_GT <char> (271) 44
+    TOK_LE <std::string> (272) 43
+    TOK_GE <std::string> (273) 45
+    TOK_PLUS <char> (274) 47
+    TOK_MINUS <char> (275) 48 53
+    TOK_STAR <char> (276) 50
+    TOK_SLASH <char> (277) 51
+    TOK_LOG_AND <std::string> (278) 36
+    TOK_LOG_OR <std::string> (279) 37
+    TOK_IF <std::string> (280) 62
+    TOK_WHILE <std::string> (281) 64
+    TOK_FOR <std::string> (282) 63
+    TOK_BREAK <std::string> (283) 23
+    TOK_CONTINUE <std::string> (284) 24
+    TOK_RETURN <std::string> (285) 25 26
+    TOK_PLUS_ASSIGN <std::string> (286) 28
+    TOK_MINUS_ASSIGN <std::string> (287) 29
+    TOK_STAR_ASSIGN <std::string> (288) 30
+    TOK_SLASH_ASSIGN <std::string> (289) 31
+    TOK_COMMA <char> (290) 12 74
+    TOK_SEMICOLON <char> (291) 4 18 65 66 67 68
+    TOK_COLON <char> (292) 34
+    TOK_QUESTION_MARK <char> (293) 34
+    TOK_ASSIGN <char> (294) 20 21
+
+
+Nonterminals, with rules where they appear
+
+    $accept (40)
+        on left: 0
+    root <Node*> (41)
+        on left: 1
+        on right: 0
+    function_list (42)
+        on left: 2 3
+        on right: 1 2
+    function (43)
+        on left: 4 5
+        on right: 2 3
+    function_decl (44)
+        on left: 6 7
+        on right: 4 8
+    function_defn (45)
+        on left: 8
+        on right: 5
+    type (46)
+        on left: 9
+        on right: 6 7 17 54
+    name (47)
+        on left: 10
+        on right: 6 7 17 21 22 60 71 72
+    parameter_list (48)
+        on left: 11 12
+        on right: 6 12
+    block (49)
+        on left: 13 14
+        on right: 8 62 63 64
+    suite (50)
+        on left: 15 16
+        on right: 13 16
+    declaration (51)
+        on left: 17
+        on right: 11 12 20
+    statement (52)
+        on left: 18 19
+        on right: 15 16
+    single_statement (53)
+        on left: 20 21 22 23 24 25 26 27
+        on right: 18 65 69
+    augmented_assign (54)
+        on left: 28 29 30 31
+        on right: 22
+    expression (55)
+        on left: 32
+        on right: 20 21 22 26 27 59 62 64 67 73 74
+    ternary_expression (56)
+        on left: 33 34
+        on right: 32 34
+    logical_expression (57)
+        on left: 35 36 37
+        on right: 33 34 36 37
+    equality (58)
+        on left: 38 39 40
+        on right: 35 36 37 39 40
+    comparison (59)
+        on left: 41 42 43 44 45
+        on right: 38 39 40 42 43 44 45
+    term (60)
+        on left: 46 47 48
+        on right: 41 42 43 44 45 47 48
+    factor (61)
+        on left: 49 50 51
+        on right: 46 47 48 50 51
+    unary_expression (62)
+        on left: 52 53 54
+        on right: 49 50 51
+    primary (63)
+        on left: 55 56 57 58 59 60 61
+        on right: 52 53 54
+    compound_statement (64)
+        on left: 62 63 64
+        on right: 19
+    for_init (65)
+        on left: 65 66
+        on right: 63
+    for_cond (66)
+        on left: 67 68
+        on right: 63
+    for_act (67)
+        on left: 69 70
+        on right: 63
+    function_call (68)
+        on left: 71 72
+        on right: 61
+    function_args (69)
+        on left: 73 74
+        on right: 71 74
+
+
+State 0
+
+    0 $accept: • root $end
+
+    TOK_TYPE  shift, and go to state 1
+
+    root           go to state 2
+    function_list  go to state 3
+    function       go to state 4
+    function_decl  go to state 5
+    function_defn  go to state 6
+    type           go to state 7
+
+
+State 1
+
+    9 type: TOK_TYPE •
+
+    $default  reduce using rule 9 (type)
+
+
+State 2
+
+    0 $accept: root • $end
+
+    $end  shift, and go to state 8
+
+
+State 3
+
+    1 root: function_list •
+
+    $default  reduce using rule 1 (root)
+
+
+State 4
+
+    2 function_list: function • function_list
+    3              | function •
+
+    TOK_TYPE  shift, and go to state 1
+
+    $default  reduce using rule 3 (function_list)
+
+    function_list  go to state 9
+    function       go to state 4
+    function_decl  go to state 5
+    function_defn  go to state 6
+    type           go to state 7
+
+
+State 5
+
+    4 function: function_decl • TOK_SEMICOLON
+    8 function_defn: function_decl • block
+
+    TOK_LBRACE     shift, and go to state 10
+    TOK_SEMICOLON  shift, and go to state 11
+
+    block  go to state 12
+
+
+State 6
+
+    5 function: function_defn •
+
+    $default  reduce using rule 5 (function)
+
+
+State 7
+
+    6 function_decl: type • name TOK_LPAREN parameter_list TOK_RPAREN
+    7              | type • name TOK_LPAREN TOK_RPAREN
+
+    TOK_IDENTIFIER  shift, and go to state 13
+
+    name  go to state 14
+
+
+State 8
+
+    0 $accept: root $end •
+
+    $default  accept
+
+
+State 9
+
+    2 function_list: function function_list •
+
+    $default  reduce using rule 2 (function_list)
+
+
+State 10
+
+   13 block: TOK_LBRACE • suite TOK_RBRACE
+   14      | TOK_LBRACE • TOK_RBRACE
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_TYPE        shift, and go to state 1
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_RBRACE      shift, and go to state 20
+    TOK_MINUS       shift, and go to state 21
+    TOK_IF          shift, and go to state 22
+    TOK_WHILE       shift, and go to state 23
+    TOK_FOR         shift, and go to state 24
+    TOK_BREAK       shift, and go to state 25
+    TOK_CONTINUE    shift, and go to state 26
+    TOK_RETURN      shift, and go to state 27
+
+    type                go to state 28
+    name                go to state 29
+    suite               go to state 30
+    declaration         go to state 31
+    statement           go to state 32
+    single_statement    go to state 33
+    expression          go to state 34
+    ternary_expression  go to state 35
+    logical_expression  go to state 36
+    equality            go to state 37
+    comparison          go to state 38
+    term                go to state 39
+    factor              go to state 40
+    unary_expression    go to state 41
+    primary             go to state 42
+    compound_statement  go to state 43
+    function_call       go to state 44
+
+
+State 11
+
+    4 function: function_decl TOK_SEMICOLON •
+
+    $default  reduce using rule 4 (function)
+
+
+State 12
+
+    8 function_defn: function_decl block •
+
+    $default  reduce using rule 8 (function_defn)
+
+
+State 13
+
+   10 name: TOK_IDENTIFIER •
+
+    $default  reduce using rule 10 (name)
+
+
+State 14
+
+    6 function_decl: type name • TOK_LPAREN parameter_list TOK_RPAREN
+    7              | type name • TOK_LPAREN TOK_RPAREN
+
+    TOK_LPAREN  shift, and go to state 45
+
+
+State 15
+
+   57 primary: TOK_INTEGER •
+
+    $default  reduce using rule 57 (primary)
+
+
+State 16
+
+   58 primary: TOK_FLOAT •
+
+    $default  reduce using rule 58 (primary)
+
+
+State 17
+
+   55 primary: TOK_TRUE •
+
+    $default  reduce using rule 55 (primary)
+
+
+State 18
+
+   56 primary: TOK_FALSE •
+
+    $default  reduce using rule 56 (primary)
+
+
+State 19
+
+   54 unary_expression: TOK_LPAREN • type TOK_RPAREN primary
+   59 primary: TOK_LPAREN • expression TOK_RPAREN
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_TYPE        shift, and go to state 1
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    type                go to state 46
+    name                go to state 47
+    expression          go to state 48
+    ternary_expression  go to state 35
+    logical_expression  go to state 36
+    equality            go to state 37
+    comparison          go to state 38
+    term                go to state 39
+    factor              go to state 40
+    unary_expression    go to state 41
+    primary             go to state 42
+    function_call       go to state 44
+
+
+State 20
+
+   14 block: TOK_LBRACE TOK_RBRACE •
+
+    $default  reduce using rule 14 (block)
+
+
+State 21
+
+   53 unary_expression: TOK_MINUS • primary
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 49
+
+    name           go to state 47
+    primary        go to state 50
+    function_call  go to state 44
+
+
+State 22
+
+   62 compound_statement: TOK_IF • TOK_LPAREN expression TOK_RPAREN block
+
+    TOK_LPAREN  shift, and go to state 51
+
+
+State 23
+
+   64 compound_statement: TOK_WHILE • TOK_LPAREN expression TOK_RPAREN block
+
+    TOK_LPAREN  shift, and go to state 52
+
+
+State 24
+
+   63 compound_statement: TOK_FOR • for_init for_cond for_act block
+
+    TOK_LPAREN  shift, and go to state 53
+
+    for_init  go to state 54
+
+
+State 25
+
+   23 single_statement: TOK_BREAK •
+
+    $default  reduce using rule 23 (single_statement)
+
+
+State 26
+
+   24 single_statement: TOK_CONTINUE •
+
+    $default  reduce using rule 24 (single_statement)
+
+
+State 27
+
+   25 single_statement: TOK_RETURN •
+   26                 | TOK_RETURN • expression
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    $default  reduce using rule 25 (single_statement)
+
+    name                go to state 47
+    expression          go to state 55
+    ternary_expression  go to state 35
+    logical_expression  go to state 36
+    equality            go to state 37
+    comparison          go to state 38
+    term                go to state 39
+    factor              go to state 40
+    unary_expression    go to state 41
+    primary             go to state 42
+    function_call       go to state 44
+
+
+State 28
+
+   17 declaration: type • name
+
+    TOK_IDENTIFIER  shift, and go to state 13
+
+    name  go to state 56
+
+
+State 29
+
+   21 single_statement: name • TOK_ASSIGN expression
+   22                 | name • augmented_assign expression
+   60 primary: name •
+   71 function_call: name • TOK_LPAREN function_args TOK_RPAREN
+   72              | name • TOK_LPAREN TOK_RPAREN
+
+    TOK_LPAREN        shift, and go to state 57
+    TOK_PLUS_ASSIGN   shift, and go to state 58
+    TOK_MINUS_ASSIGN  shift, and go to state 59
+    TOK_STAR_ASSIGN   shift, and go to state 60
+    TOK_SLASH_ASSIGN  shift, and go to state 61
+    TOK_ASSIGN        shift, and go to state 62
+
+    $default  reduce using rule 60 (primary)
+
+    augmented_assign  go to state 63
+
+
+State 30
+
+   13 block: TOK_LBRACE suite • TOK_RBRACE
+
+    TOK_RBRACE  shift, and go to state 64
+
+
+State 31
+
+   20 single_statement: declaration • TOK_ASSIGN expression
+
+    TOK_ASSIGN  shift, and go to state 65
+
+
+State 32
+
+   15 suite: statement •
+   16      | statement • suite
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_TYPE        shift, and go to state 1
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+    TOK_IF          shift, and go to state 22
+    TOK_WHILE       shift, and go to state 23
+    TOK_FOR         shift, and go to state 24
+    TOK_BREAK       shift, and go to state 25
+    TOK_CONTINUE    shift, and go to state 26
+    TOK_RETURN      shift, and go to state 27
+
+    $default  reduce using rule 15 (suite)
+
+    type                go to state 28
+    name                go to state 29
+    suite               go to state 66
+    declaration         go to state 31
+    statement           go to state 32
+    single_statement    go to state 33
+    expression          go to state 34
+    ternary_expression  go to state 35
+    logical_expression  go to state 36
+    equality            go to state 37
+    comparison          go to state 38
+    term                go to state 39
+    factor              go to state 40
+    unary_expression    go to state 41
+    primary             go to state 42
+    compound_statement  go to state 43
+    function_call       go to state 44
+
+
+State 33
+
+   18 statement: single_statement • TOK_SEMICOLON
+
+    TOK_SEMICOLON  shift, and go to state 67
+
+
+State 34
+
+   27 single_statement: expression •
+
+    $default  reduce using rule 27 (single_statement)
+
+
+State 35
+
+   32 expression: ternary_expression •
+
+    $default  reduce using rule 32 (expression)
+
+
+State 36
+
+   33 ternary_expression: logical_expression •
+   34                   | logical_expression • TOK_QUESTION_MARK logical_expression TOK_COLON ternary_expression
+
+    TOK_QUESTION_MARK  shift, and go to state 68
+
+    $default  reduce using rule 33 (ternary_expression)
+
+
+State 37
+
+   35 logical_expression: equality •
+   36                   | equality • TOK_LOG_AND logical_expression
+   37                   | equality • TOK_LOG_OR logical_expression
+
+    TOK_LOG_AND  shift, and go to state 69
+    TOK_LOG_OR   shift, and go to state 70
+
+    $default  reduce using rule 35 (logical_expression)
+
+
+State 38
+
+   38 equality: comparison •
+   39         | comparison • TOK_EQ equality
+   40         | comparison • TOK_NE equality
+
+    TOK_EQ  shift, and go to state 71
+    TOK_NE  shift, and go to state 72
+
+    $default  reduce using rule 38 (equality)
+
+
+State 39
+
+   41 comparison: term •
+   42           | term • TOK_LT comparison
+   43           | term • TOK_LE comparison
+   44           | term • TOK_GT comparison
+   45           | term • TOK_GE comparison
+
+    TOK_LT  shift, and go to state 73
+    TOK_GT  shift, and go to state 74
+    TOK_LE  shift, and go to state 75
+    TOK_GE  shift, and go to state 76
+
+    $default  reduce using rule 41 (comparison)
+
+
+State 40
+
+   46 term: factor •
+   47     | factor • TOK_PLUS term
+   48     | factor • TOK_MINUS term
+
+    TOK_PLUS   shift, and go to state 77
+    TOK_MINUS  shift, and go to state 78
+
+    $default  reduce using rule 46 (term)
+
+
+State 41
+
+   49 factor: unary_expression •
+   50       | unary_expression • TOK_STAR factor
+   51       | unary_expression • TOK_SLASH factor
+
+    TOK_STAR   shift, and go to state 79
+    TOK_SLASH  shift, and go to state 80
+
+    $default  reduce using rule 49 (factor)
+
+
+State 42
+
+   52 unary_expression: primary •
+
+    $default  reduce using rule 52 (unary_expression)
+
+
+State 43
+
+   19 statement: compound_statement •
+
+    $default  reduce using rule 19 (statement)
+
+
+State 44
+
+   61 primary: function_call •
+
+    $default  reduce using rule 61 (primary)
+
+
+State 45
+
+    6 function_decl: type name TOK_LPAREN • parameter_list TOK_RPAREN
+    7              | type name TOK_LPAREN • TOK_RPAREN
+
+    TOK_TYPE    shift, and go to state 1
+    TOK_RPAREN  shift, and go to state 81
+
+    type            go to state 28
+    parameter_list  go to state 82
+    declaration     go to state 83
+
+
+State 46
+
+   54 unary_expression: TOK_LPAREN type • TOK_RPAREN primary
+
+    TOK_RPAREN  shift, and go to state 84
+
+
+State 47
+
+   60 primary: name •
+   71 function_call: name • TOK_LPAREN function_args TOK_RPAREN
+   72              | name • TOK_LPAREN TOK_RPAREN
+
+    TOK_LPAREN  shift, and go to state 57
+
+    $default  reduce using rule 60 (primary)
+
+
+State 48
+
+   59 primary: TOK_LPAREN expression • TOK_RPAREN
+
+    TOK_RPAREN  shift, and go to state 85
+
+
+State 49
+
+   59 primary: TOK_LPAREN • expression TOK_RPAREN
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name                go to state 47
+    expression          go to state 48
+    ternary_expression  go to state 35
+    logical_expression  go to state 36
+    equality            go to state 37
+    comparison          go to state 38
+    term                go to state 39
+    factor              go to state 40
+    unary_expression    go to state 41
+    primary             go to state 42
+    function_call       go to state 44
+
+
+State 50
+
+   53 unary_expression: TOK_MINUS primary •
+
+    $default  reduce using rule 53 (unary_expression)
+
+
+State 51
+
+   62 compound_statement: TOK_IF TOK_LPAREN • expression TOK_RPAREN block
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name                go to state 47
+    expression          go to state 86
+    ternary_expression  go to state 35
+    logical_expression  go to state 36
+    equality            go to state 37
+    comparison          go to state 38
+    term                go to state 39
+    factor              go to state 40
+    unary_expression    go to state 41
+    primary             go to state 42
+    function_call       go to state 44
+
+
+State 52
+
+   64 compound_statement: TOK_WHILE TOK_LPAREN • expression TOK_RPAREN block
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name                go to state 47
+    expression          go to state 87
+    ternary_expression  go to state 35
+    logical_expression  go to state 36
+    equality            go to state 37
+    comparison          go to state 38
+    term                go to state 39
+    factor              go to state 40
+    unary_expression    go to state 41
+    primary             go to state 42
+    function_call       go to state 44
+
+
+State 53
+
+   65 for_init: TOK_LPAREN • single_statement TOK_SEMICOLON
+   66         | TOK_LPAREN • TOK_SEMICOLON
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_TYPE        shift, and go to state 1
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+    TOK_BREAK       shift, and go to state 25
+    TOK_CONTINUE    shift, and go to state 26
+    TOK_RETURN      shift, and go to state 27
+    TOK_SEMICOLON   shift, and go to state 88
+
+    type                go to state 28
+    name                go to state 29
+    declaration         go to state 31
+    single_statement    go to state 89
+    expression          go to state 34
+    ternary_expression  go to state 35
+    logical_expression  go to state 36
+    equality            go to state 37
+    comparison          go to state 38
+    term                go to state 39
+    factor              go to state 40
+    unary_expression    go to state 41
+    primary             go to state 42
+    function_call       go to state 44
+
+
+State 54
+
+   63 compound_statement: TOK_FOR for_init • for_cond for_act block
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+    TOK_SEMICOLON   shift, and go to state 90
+
+    name                go to state 47
+    expression          go to state 91
+    ternary_expression  go to state 35
+    logical_expression  go to state 36
+    equality            go to state 37
+    comparison          go to state 38
+    term                go to state 39
+    factor              go to state 40
+    unary_expression    go to state 41
+    primary             go to state 42
+    for_cond            go to state 92
+    function_call       go to state 44
+
+
+State 55
+
+   26 single_statement: TOK_RETURN expression •
+
+    $default  reduce using rule 26 (single_statement)
+
+
+State 56
+
+   17 declaration: type name •
+
+    $default  reduce using rule 17 (declaration)
+
+
+State 57
+
+   71 function_call: name TOK_LPAREN • function_args TOK_RPAREN
+   72              | name TOK_LPAREN • TOK_RPAREN
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_RPAREN      shift, and go to state 93
+    TOK_MINUS       shift, and go to state 21
+
+    name                go to state 47
+    expression          go to state 94
+    ternary_expression  go to state 35
+    logical_expression  go to state 36
+    equality            go to state 37
+    comparison          go to state 38
+    term                go to state 39
+    factor              go to state 40
+    unary_expression    go to state 41
+    primary             go to state 42
+    function_call       go to state 44
+    function_args       go to state 95
+
+
+State 58
+
+   28 augmented_assign: TOK_PLUS_ASSIGN •
+
+    $default  reduce using rule 28 (augmented_assign)
+
+
+State 59
+
+   29 augmented_assign: TOK_MINUS_ASSIGN •
+
+    $default  reduce using rule 29 (augmented_assign)
+
+
+State 60
+
+   30 augmented_assign: TOK_STAR_ASSIGN •
+
+    $default  reduce using rule 30 (augmented_assign)
+
+
+State 61
+
+   31 augmented_assign: TOK_SLASH_ASSIGN •
+
+    $default  reduce using rule 31 (augmented_assign)
+
+
+State 62
+
+   21 single_statement: name TOK_ASSIGN • expression
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name                go to state 47
+    expression          go to state 96
+    ternary_expression  go to state 35
+    logical_expression  go to state 36
+    equality            go to state 37
+    comparison          go to state 38
+    term                go to state 39
+    factor              go to state 40
+    unary_expression    go to state 41
+    primary             go to state 42
+    function_call       go to state 44
+
+
+State 63
+
+   22 single_statement: name augmented_assign • expression
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name                go to state 47
+    expression          go to state 97
+    ternary_expression  go to state 35
+    logical_expression  go to state 36
+    equality            go to state 37
+    comparison          go to state 38
+    term                go to state 39
+    factor              go to state 40
+    unary_expression    go to state 41
+    primary             go to state 42
+    function_call       go to state 44
+
+
+State 64
+
+   13 block: TOK_LBRACE suite TOK_RBRACE •
+
+    $default  reduce using rule 13 (block)
+
+
+State 65
+
+   20 single_statement: declaration TOK_ASSIGN • expression
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name                go to state 47
+    expression          go to state 98
+    ternary_expression  go to state 35
+    logical_expression  go to state 36
+    equality            go to state 37
+    comparison          go to state 38
+    term                go to state 39
+    factor              go to state 40
+    unary_expression    go to state 41
+    primary             go to state 42
+    function_call       go to state 44
+
+
+State 66
+
+   16 suite: statement suite •
+
+    $default  reduce using rule 16 (suite)
+
+
+State 67
+
+   18 statement: single_statement TOK_SEMICOLON •
+
+    $default  reduce using rule 18 (statement)
+
+
+State 68
+
+   34 ternary_expression: logical_expression TOK_QUESTION_MARK • logical_expression TOK_COLON ternary_expression
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name                go to state 47
+    logical_expression  go to state 99
+    equality            go to state 37
+    comparison          go to state 38
+    term                go to state 39
+    factor              go to state 40
+    unary_expression    go to state 41
+    primary             go to state 42
+    function_call       go to state 44
+
+
+State 69
+
+   36 logical_expression: equality TOK_LOG_AND • logical_expression
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name                go to state 47
+    logical_expression  go to state 100
+    equality            go to state 37
+    comparison          go to state 38
+    term                go to state 39
+    factor              go to state 40
+    unary_expression    go to state 41
+    primary             go to state 42
+    function_call       go to state 44
+
+
+State 70
+
+   37 logical_expression: equality TOK_LOG_OR • logical_expression
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name                go to state 47
+    logical_expression  go to state 101
+    equality            go to state 37
+    comparison          go to state 38
+    term                go to state 39
+    factor              go to state 40
+    unary_expression    go to state 41
+    primary             go to state 42
+    function_call       go to state 44
+
+
+State 71
+
+   39 equality: comparison TOK_EQ • equality
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name              go to state 47
+    equality          go to state 102
+    comparison        go to state 38
+    term              go to state 39
+    factor            go to state 40
+    unary_expression  go to state 41
+    primary           go to state 42
+    function_call     go to state 44
+
+
+State 72
+
+   40 equality: comparison TOK_NE • equality
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name              go to state 47
+    equality          go to state 103
+    comparison        go to state 38
+    term              go to state 39
+    factor            go to state 40
+    unary_expression  go to state 41
+    primary           go to state 42
+    function_call     go to state 44
+
+
+State 73
+
+   42 comparison: term TOK_LT • comparison
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name              go to state 47
+    comparison        go to state 104
+    term              go to state 39
+    factor            go to state 40
+    unary_expression  go to state 41
+    primary           go to state 42
+    function_call     go to state 44
+
+
+State 74
+
+   44 comparison: term TOK_GT • comparison
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name              go to state 47
+    comparison        go to state 105
+    term              go to state 39
+    factor            go to state 40
+    unary_expression  go to state 41
+    primary           go to state 42
+    function_call     go to state 44
+
+
+State 75
+
+   43 comparison: term TOK_LE • comparison
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name              go to state 47
+    comparison        go to state 106
+    term              go to state 39
+    factor            go to state 40
+    unary_expression  go to state 41
+    primary           go to state 42
+    function_call     go to state 44
+
+
+State 76
+
+   45 comparison: term TOK_GE • comparison
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name              go to state 47
+    comparison        go to state 107
+    term              go to state 39
+    factor            go to state 40
+    unary_expression  go to state 41
+    primary           go to state 42
+    function_call     go to state 44
+
+
+State 77
+
+   47 term: factor TOK_PLUS • term
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name              go to state 47
+    term              go to state 108
+    factor            go to state 40
+    unary_expression  go to state 41
+    primary           go to state 42
+    function_call     go to state 44
+
+
+State 78
+
+   48 term: factor TOK_MINUS • term
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name              go to state 47
+    term              go to state 109
+    factor            go to state 40
+    unary_expression  go to state 41
+    primary           go to state 42
+    function_call     go to state 44
+
+
+State 79
+
+   50 factor: unary_expression TOK_STAR • factor
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name              go to state 47
+    factor            go to state 110
+    unary_expression  go to state 41
+    primary           go to state 42
+    function_call     go to state 44
+
+
+State 80
+
+   51 factor: unary_expression TOK_SLASH • factor
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name              go to state 47
+    factor            go to state 111
+    unary_expression  go to state 41
+    primary           go to state 42
+    function_call     go to state 44
+
+
+State 81
+
+    7 function_decl: type name TOK_LPAREN TOK_RPAREN •
+
+    $default  reduce using rule 7 (function_decl)
+
+
+State 82
+
+    6 function_decl: type name TOK_LPAREN parameter_list • TOK_RPAREN
+
+    TOK_RPAREN  shift, and go to state 112
+
+
+State 83
+
+   11 parameter_list: declaration •
+   12               | declaration • TOK_COMMA parameter_list
+
+    TOK_COMMA  shift, and go to state 113
+
+    $default  reduce using rule 11 (parameter_list)
+
+
+State 84
+
+   54 unary_expression: TOK_LPAREN type TOK_RPAREN • primary
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 49
+
+    name           go to state 47
+    primary        go to state 114
+    function_call  go to state 44
+
+
+State 85
+
+   59 primary: TOK_LPAREN expression TOK_RPAREN •
+
+    $default  reduce using rule 59 (primary)
+
+
+State 86
+
+   62 compound_statement: TOK_IF TOK_LPAREN expression • TOK_RPAREN block
+
+    TOK_RPAREN  shift, and go to state 115
+
+
+State 87
+
+   64 compound_statement: TOK_WHILE TOK_LPAREN expression • TOK_RPAREN block
+
+    TOK_RPAREN  shift, and go to state 116
+
+
+State 88
+
+   66 for_init: TOK_LPAREN TOK_SEMICOLON •
+
+    $default  reduce using rule 66 (for_init)
+
+
+State 89
+
+   65 for_init: TOK_LPAREN single_statement • TOK_SEMICOLON
+
+    TOK_SEMICOLON  shift, and go to state 117
+
+
+State 90
+
+   68 for_cond: TOK_SEMICOLON •
+
+    $default  reduce using rule 68 (for_cond)
+
+
+State 91
+
+   67 for_cond: expression • TOK_SEMICOLON
+
+    TOK_SEMICOLON  shift, and go to state 118
+
+
+State 92
+
+   63 compound_statement: TOK_FOR for_init for_cond • for_act block
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_TYPE        shift, and go to state 1
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_RPAREN      shift, and go to state 119
+    TOK_MINUS       shift, and go to state 21
+    TOK_BREAK       shift, and go to state 25
+    TOK_CONTINUE    shift, and go to state 26
+    TOK_RETURN      shift, and go to state 27
+
+    type                go to state 28
+    name                go to state 29
+    declaration         go to state 31
+    single_statement    go to state 120
+    expression          go to state 34
+    ternary_expression  go to state 35
+    logical_expression  go to state 36
+    equality            go to state 37
+    comparison          go to state 38
+    term                go to state 39
+    factor              go to state 40
+    unary_expression    go to state 41
+    primary             go to state 42
+    for_act             go to state 121
+    function_call       go to state 44
+
+
+State 93
+
+   72 function_call: name TOK_LPAREN TOK_RPAREN •
+
+    $default  reduce using rule 72 (function_call)
+
+
+State 94
+
+   73 function_args: expression •
+   74              | expression • TOK_COMMA function_args
+
+    TOK_COMMA  shift, and go to state 122
+
+    $default  reduce using rule 73 (function_args)
+
+
+State 95
+
+   71 function_call: name TOK_LPAREN function_args • TOK_RPAREN
+
+    TOK_RPAREN  shift, and go to state 123
+
+
+State 96
+
+   21 single_statement: name TOK_ASSIGN expression •
+
+    $default  reduce using rule 21 (single_statement)
+
+
+State 97
+
+   22 single_statement: name augmented_assign expression •
+
+    $default  reduce using rule 22 (single_statement)
+
+
+State 98
+
+   20 single_statement: declaration TOK_ASSIGN expression •
+
+    $default  reduce using rule 20 (single_statement)
+
+
+State 99
+
+   34 ternary_expression: logical_expression TOK_QUESTION_MARK logical_expression • TOK_COLON ternary_expression
+
+    TOK_COLON  shift, and go to state 124
+
+
+State 100
+
+   36 logical_expression: equality TOK_LOG_AND logical_expression •
+
+    $default  reduce using rule 36 (logical_expression)
+
+
+State 101
+
+   37 logical_expression: equality TOK_LOG_OR logical_expression •
+
+    $default  reduce using rule 37 (logical_expression)
+
+
+State 102
+
+   39 equality: comparison TOK_EQ equality •
+
+    $default  reduce using rule 39 (equality)
+
+
+State 103
+
+   40 equality: comparison TOK_NE equality •
+
+    $default  reduce using rule 40 (equality)
+
+
+State 104
+
+   42 comparison: term TOK_LT comparison •
+
+    $default  reduce using rule 42 (comparison)
+
+
+State 105
+
+   44 comparison: term TOK_GT comparison •
+
+    $default  reduce using rule 44 (comparison)
+
+
+State 106
+
+   43 comparison: term TOK_LE comparison •
+
+    $default  reduce using rule 43 (comparison)
+
+
+State 107
+
+   45 comparison: term TOK_GE comparison •
+
+    $default  reduce using rule 45 (comparison)
+
+
+State 108
+
+   47 term: factor TOK_PLUS term •
+
+    $default  reduce using rule 47 (term)
+
+
+State 109
+
+   48 term: factor TOK_MINUS term •
+
+    $default  reduce using rule 48 (term)
+
+
+State 110
+
+   50 factor: unary_expression TOK_STAR factor •
+
+    $default  reduce using rule 50 (factor)
+
+
+State 111
+
+   51 factor: unary_expression TOK_SLASH factor •
+
+    $default  reduce using rule 51 (factor)
+
+
+State 112
+
+    6 function_decl: type name TOK_LPAREN parameter_list TOK_RPAREN •
+
+    $default  reduce using rule 6 (function_decl)
+
+
+State 113
+
+   12 parameter_list: declaration TOK_COMMA • parameter_list
+
+    TOK_TYPE  shift, and go to state 1
+
+    type            go to state 28
+    parameter_list  go to state 125
+    declaration     go to state 83
+
+
+State 114
+
+   54 unary_expression: TOK_LPAREN type TOK_RPAREN primary •
+
+    $default  reduce using rule 54 (unary_expression)
+
+
+State 115
+
+   62 compound_statement: TOK_IF TOK_LPAREN expression TOK_RPAREN • block
+
+    TOK_LBRACE  shift, and go to state 10
+
+    block  go to state 126
+
+
+State 116
+
+   64 compound_statement: TOK_WHILE TOK_LPAREN expression TOK_RPAREN • block
+
+    TOK_LBRACE  shift, and go to state 10
+
+    block  go to state 127
+
+
+State 117
+
+   65 for_init: TOK_LPAREN single_statement TOK_SEMICOLON •
+
+    $default  reduce using rule 65 (for_init)
+
+
+State 118
+
+   67 for_cond: expression TOK_SEMICOLON •
+
+    $default  reduce using rule 67 (for_cond)
+
+
+State 119
+
+   70 for_act: TOK_RPAREN •
+
+    $default  reduce using rule 70 (for_act)
+
+
+State 120
+
+   69 for_act: single_statement • TOK_RPAREN
+
+    TOK_RPAREN  shift, and go to state 128
+
+
+State 121
+
+   63 compound_statement: TOK_FOR for_init for_cond for_act • block
+
+    TOK_LBRACE  shift, and go to state 10
+
+    block  go to state 129
+
+
+State 122
+
+   74 function_args: expression TOK_COMMA • function_args
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name                go to state 47
+    expression          go to state 94
+    ternary_expression  go to state 35
+    logical_expression  go to state 36
+    equality            go to state 37
+    comparison          go to state 38
+    term                go to state 39
+    factor              go to state 40
+    unary_expression    go to state 41
+    primary             go to state 42
+    function_call       go to state 44
+    function_args       go to state 130
+
+
+State 123
+
+   71 function_call: name TOK_LPAREN function_args TOK_RPAREN •
+
+    $default  reduce using rule 71 (function_call)
+
+
+State 124
+
+   34 ternary_expression: logical_expression TOK_QUESTION_MARK logical_expression TOK_COLON • ternary_expression
+
+    TOK_IDENTIFIER  shift, and go to state 13
+    TOK_INTEGER     shift, and go to state 15
+    TOK_FLOAT       shift, and go to state 16
+    TOK_TRUE        shift, and go to state 17
+    TOK_FALSE       shift, and go to state 18
+    TOK_LPAREN      shift, and go to state 19
+    TOK_MINUS       shift, and go to state 21
+
+    name                go to state 47
+    ternary_expression  go to state 131
+    logical_expression  go to state 36
+    equality            go to state 37
+    comparison          go to state 38
+    term                go to state 39
+    factor              go to state 40
+    unary_expression    go to state 41
+    primary             go to state 42
+    function_call       go to state 44
+
+
+State 125
+
+   12 parameter_list: declaration TOK_COMMA parameter_list •
+
+    $default  reduce using rule 12 (parameter_list)
+
+
+State 126
+
+   62 compound_statement: TOK_IF TOK_LPAREN expression TOK_RPAREN block •
+
+    $default  reduce using rule 62 (compound_statement)
+
+
+State 127
+
+   64 compound_statement: TOK_WHILE TOK_LPAREN expression TOK_RPAREN block •
+
+    $default  reduce using rule 64 (compound_statement)
+
+
+State 128
+
+   69 for_act: single_statement TOK_RPAREN •
+
+    $default  reduce using rule 69 (for_act)
+
+
+State 129
+
+   63 compound_statement: TOK_FOR for_init for_cond for_act block •
+
+    $default  reduce using rule 63 (compound_statement)
+
+
+State 130
+
+   74 function_args: expression TOK_COMMA function_args •
+
+    $default  reduce using rule 74 (function_args)
+
+
+State 131
+
+   34 ternary_expression: logical_expression TOK_QUESTION_MARK logical_expression TOK_COLON ternary_expression •
+
+    $default  reduce using rule 34 (ternary_expression)
